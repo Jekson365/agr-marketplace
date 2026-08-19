@@ -25,17 +25,63 @@ mkdir -p /var/www/market.mtabari.com.ge
 
 ### 2. Install the nginx site and get a certificate
 
-```bash
-cp /srv/agr-marketplace/deploy/market.mtabari.com.ge.conf \
-   /etc/nginx/sites-available/market.mtabari.com.ge
-ln -sf /etc/nginx/sites-available/market.mtabari.com.ge \
-       /etc/nginx/sites-enabled/market.mtabari.com.ge
-nginx -t && systemctl reload nginx
+**This is the step that fixes the two things wrong with the subdomain today.** Until it is done,
+nginx has no server block matching `market.mtabari.com.ge`, so it falls through to the default
+vhost: the subdomain serves the *main site's* content, and presents the *apex* certificate — which
+is why HTTPS fails with a name mismatch (`SEC_E_WRONG_PRINCIPAL`) rather than a connection error.
+TLS is answering on 443; it is answering for the wrong host.
 
+```bash
+cp /srv/agr-marketplace/deploy/market.mtabari.com.ge.conf /etc/nginx/sites-available/market.mtabari.com.ge
+ln -sf /etc/nginx/sites-available/market.mtabari.com.ge /etc/nginx/sites-enabled/market.mtabari.com.ge
+nginx -t && systemctl reload nginx
+```
+
+At this point `http://market.mtabari.com.ge` serves the marketplace instead of the main site.
+Then issue the certificate:
+
+```bash
 certbot --nginx -d market.mtabari.com.ge --agree-tos --redirect -m you@example.com
 ```
 
-DNS already points `market.mtabari.com.ge` at this box, so certbot's HTTP challenge will pass.
+DNS already points `market.mtabari.com.ge` at this box, and certbot is already working here (the
+apex holds a valid Let's Encrypt certificate), so the HTTP-01 challenge will pass. `--redirect`
+makes certbot turn the `:80` block into a permanent redirect to HTTPS.
+
+Check it:
+
+```bash
+curl -sSI https://market.mtabari.com.ge | head -1                        # expect 200
+curl -sS -o /dev/null -w '%{http_code}\n' http://market.mtabari.com.ge   # expect 301
+certbot certificates                                                     # both domains, with expiry
+systemctl list-timers | grep -i certbot                                  # renewal timer armed
+```
+
+Renewal is automatic through certbot's systemd timer — the same one already renewing the apex.
+
+#### About the security headers
+
+The site config sets HSTS (`max-age=31536000`, no `includeSubDomains`, no `preload`), plus
+`nosniff`, `X-Frame-Options` and a referrer policy.
+
+**HSTS is a one-way door for its lifetime.** A browser that has seen it refuses plain HTTP for this
+host until the max-age lapses, so if the certificate ever stops renewing the site becomes
+unreachable rather than merely insecure. That is the intended trade, but it is worth knowing before
+the first visitor loads the page. Lower the max-age if you would rather ease into it.
+
+There is also a Content-Security-Policy, deliberately set as **`Content-Security-Policy-Report-Only`**.
+It has never been exercised against the real page, and an enforcing policy one directive short
+white-screens the site. Load the site, click through a listing and a checkout, and watch the browser
+console; when it is quiet, rename the header to `Content-Security-Policy` to switch it on.
+
+The policy allows the inline theme script by SHA-256 hash — that script has to run before first
+paint, so it cannot move into a file. **Editing it, even by one character, invalidates the hash**,
+and the script will be blocked once the policy is enforcing. Recompute it from the exact bytes
+between `<script>` and `</script>` in `index.html`:
+
+```bash
+openssl dgst -sha256 -binary script.js | openssl base64 -A
+```
 
 ### 3. Make a deploy key that can only deploy
 

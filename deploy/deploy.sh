@@ -61,6 +61,14 @@ echo "==> Checking the site"
 sleep 2
 for path in "/" "/listing/1" "/checkout/success"; do
   code=$(curl -s -o /dev/null -m 15 -w '%{http_code}' "https://${DOMAIN}${path}" || echo "000")
-  echo "    ${path} -> ${code}"
+  echo "    https ${path} -> ${code}"
 done
 echo "    (all three should be 200 — the last two prove the SPA fallback works)"
+
+# Plain HTTP must not still serve the site: certbot --redirect turns the :80 block into a 301, and
+# a 200 here means the redirect did not take.
+redirect=$(curl -s -o /dev/null -m 15 -w '%{http_code}' "http://${DOMAIN}/" || echo "000")
+echo "    http  / -> ${redirect}   (301 expected; 200 means TLS is not being enforced)"
+
+echo "==> Certificate"
+echo | openssl s_client -servername "${DOMAIN}" -connect "${DOMAIN}:443" 2>/dev/null   | openssl x509 -noout -subject -dates 2>/dev/null | sed 's/^/    /'   || echo "    could not read the certificate"
