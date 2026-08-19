@@ -1,0 +1,158 @@
+.home-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.home-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.home-subtitle {
+  margin: 0 0 24px;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+
+.home-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.home-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  object-fit: cover;
+  background: var(--color-green-muted);
+}
+
+.home-user-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+/* The three-column grid this page exists for. It steps down rather than holding three columns all
+   the way: below roughly 900px a third of the width is narrower than the card's own padding plus a
+   readable title, so three columns would only make every card unreadable at once. */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .product-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+.product-image-wrap {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--color-surface-sunken);
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Stands in for a listing uploaded without a photo. The web SPA falls back to the crop's or
+   animal's own artwork here; that artwork lives in its asset folder, so this app shows the
+   category initial rather than duplicating a few hundred PNGs to say the same thing. */
+.product-image-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-muted);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.product-photo-count {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 55%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.product-status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.product-status.sold {
+  background: var(--color-green);
+  color: var(--color-on-accent);
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px 16px;
+}
+
+.product-title {
+  font-size: 1rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-price {
+  color: var(--color-green);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.product-meta {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
