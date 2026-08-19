@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+#
+# Lives on the server as /usr/local/bin/deploy-market, and is the forced command behind the
+# marketplace deploy key. GitHub Actions SSHes in and this runs; whatever command the client asked
+# for is ignored, so the key cannot be used for anything else.
+#
+# Builds from a clean checkout of main and swaps the result into the webroot.
+#
+set -euo pipefail
+
+REPO="/srv/agr-marketplace"
+WEBROOT="/var/www/market.mtabari.com.ge"
+# Baked into the bundle at build time. A build made without it silently falls back to
+# http://localhost:5261 and the published site talks to nothing.
+API_URL="https://mtabari.com.ge"
+
+echo "=== deploy-market: ${SSH_ORIGINAL_COMMAND:-manual run}"
+date -u +"    started %Y-%m-%dT%H:%M:%SZ"
+
+cd "${REPO}"
+git fetch --prune origin
+git reset --hard origin/main
+echo "    building $(git rev-parse --short HEAD)"
+
+# `npm ci` rather than `install`: the lockfile is what was tested, and a deploy is the last place
+# to discover a transitive dependency moved.
+npm ci --no-audit --no-fund
+VITE_API_URL="${API_URL}" npm run build
+
+if ! grep -q "${API_URL}" dist/assets/index-*.js; then
+  echo "!! The built bundle does not contain ${API_URL}. Refusing to publish." >&2
+  exit 1
+fi
+
+# Staged then swapped in one move: copying over a live webroot serves a half-updated site to anyone
+# loading it mid-copy.
+rm -rf "${WEBROOT}.new"
+cp -r dist "${WEBROOT}.new"
+rm -rf "${WEBROOT}.old"
+[ -d "${WEBROOT}" ] && mv "${WEBROOT}" "${WEBROOT}.old"
+mv "${WEBROOT}.new" "${WEBROOT}"
+rm -rf "${WEBROOT}.old"
+chown -R www-data:www-data "${WEBROOT}"
+
+# Static files only, so nginx does not need restarting -- but reload costs nothing and picks up a
+# site config edited in the same push.
+nginx -t && systemctl reload nginx
+
+echo "    published $(ls -1 "${WEBROOT}/assets" | wc -l) assets"
+date -u +"    finished %Y-%m-%dT%H:%M:%SZ"
