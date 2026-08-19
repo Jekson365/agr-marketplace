@@ -1,0 +1,48 @@
+# market.mtabari.com.ge -- the public marketplace SPA.
+#
+# Without this file nginx has no server block for this name and falls through to the `farm`
+# default_server, which is why the subdomain served the main site and presented the wrong
+# certificate.
+#
+# Hand-maintained, like sites-available/farm, and issued with `certbot certonly --webroot` for the
+# same reason: the --nginx plugin rewrites config files, and these are written deliberately.
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name market.mtabari.com.ge;
+
+    # Answered over plain HTTP so renewals keep working regardless of the HTTPS state.
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    # No `http2` here: on nginx 1.24 it is a listen option, and repeating a listen option for an
+    # address:port already configured elsewhere is a duplicate-options error. The socket set up by
+    # the www.inovatori.ge block already carries it, and it applies to every server on :443.
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name market.mtabari.com.ge;
+
+    ssl_certificate     /etc/letsencrypt/live/market.mtabari.com.ge/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/market.mtabari.com.ge/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate /etc/letsencrypt/live/market.mtabari.com.ge/chain.pem;
+
+    include /etc/nginx/snippets/market-app.conf;
+}
