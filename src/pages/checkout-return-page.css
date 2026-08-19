@@ -1,0 +1,110 @@
+.checkout-return-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.checkout-return-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 32px 28px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-surface);
+  text-align: center;
+}
+
+/* The one glyph that says how it went, tinted by outcome. */
+.checkout-return-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 32px;
+  background: var(--color-surface-sunken);
+  color: var(--color-muted);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.checkout-return-card.paid .checkout-return-mark {
+  background: var(--color-green-muted);
+  color: var(--color-green);
+}
+
+.checkout-return-card.failed .checkout-return-mark {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.checkout-return-title {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.checkout-return-body {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.checkout-return-meta {
+  margin: 12px 0 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+/* The pretend settlement. Deliberately plain and set apart from the outcome above it, so nobody
+   reads it as a receipt for money that actually moved. */
+.checkout-split {
+  margin-top: 22px;
+  padding: 16px;
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface-sunken);
+  text-align: left;
+}
+
+.checkout-split-title {
+  color: var(--color-dark);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.checkout-split-body {
+  margin: 4px 0 12px;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.checkout-split-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.checkout-split-row strong {
+  color: var(--color-dark);
+  white-space: nowrap;
+}
+
+.checkout-return-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 22px;
+  text-decoration: none;
+}

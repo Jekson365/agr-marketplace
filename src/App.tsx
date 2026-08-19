@@ -1,30 +1,26 @@
-import { useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import { CheckoutReturnPage } from '@/pages/checkout-return-page';
 import { HomePage } from '@/pages/home-page';
-import { LoginPage } from '@/pages/login-page';
-import { clearSession, loadSession, saveSession, type Session } from '@/session';
+import { ListingPage } from '@/pages/listing-page';
 
 /**
- * One page, so there is no router: either there is a session and you are looking at your products,
- * or there isn't and you are signing in. The stored session is read in the initialiser rather than
- * in an effect, so a returning visitor never sees the login form flash first.
+ * The market is public: no sign-in, no session, no guard. Anything unmatched falls back to the
+ * grid rather than to a dead end.
+ *
+ * Both checkout endings render the same page on purpose. Which address the bank sent the buyer to
+ * is not evidence of anything — that page asks the server what the order actually says.
  */
 export function App() {
-  const [session, setSession] = useState<Session | null>(() => loadSession());
-
-  function handleSignedIn(next: Session) {
-    saveSession(next);
-    setSession(next);
-  }
-
-  function handleSignOut() {
-    clearSession();
-    setSession(null);
-  }
-
-  if (!session) {
-    return <LoginPage onSignedIn={handleSignedIn} />;
-  }
-
-  return <HomePage user={session.user} onSignOut={handleSignOut} />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/listing/:id" element={<ListingPage />} />
+        <Route path="/checkout/success" element={<CheckoutReturnPage />} />
+        <Route path="/checkout/fail" element={<CheckoutReturnPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }

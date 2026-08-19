@@ -1,6 +1,10 @@
 /**
  * The whole networking layer, as in the web SPA: no cache, no dedupe, no retry, no data-fetching
  * library. Pages hold their own rows, loading flag and error string.
+ *
+ * There is no token here and no Authorization header. This app only ever reads the market, and the
+ * market's read endpoints are [AllowAnonymous] — see Server/Controllers/MarketListingsController.cs.
+ * Anything that writes needs a signed-in caller, which is what the web SPA is for.
  */
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5261';
 
@@ -22,19 +26,11 @@ export class ApiError extends Error {
   }
 }
 
-// In-memory copy of the JWT, so no request pays a storage read. Kept in sync by session.ts.
-let authToken: string | null = null;
-
-export function setAuthToken(token: string | null): void {
-  authToken = token;
-}
-
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...init?.headers,
     },
   });

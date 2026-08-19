@@ -1,0 +1,74 @@
+.image-slider {
+  position: relative;
+  width: 100%;
+  /* Photos arrive at whatever shape the seller uploaded, so the frame fixes the shape and the
+     image covers it. The wrapper caps the width, which is what bounds the height. */
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-green-muted);
+  overflow: hidden;
+}
+
+.image-slider-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-scrim);
+  color: var(--color-on-overlay);
+  cursor: pointer;
+}
+
+.image-slider-arrow-prev {
+  left: 10px;
+}
+
+.image-slider-arrow-next {
+  right: 10px;
+}
+
+.image-slider-dots {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.image-slider-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 60%);
+  cursor: pointer;
+  transition: width 0.15s ease, background 0.15s ease;
+}
+
+.image-slider-dot.active {
+  width: 16px;
+  background: var(--color-surface);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image-slider-dot {
+    transition: none;
+  }
+}

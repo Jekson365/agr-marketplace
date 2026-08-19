@@ -1,35 +1,68 @@
-/* Theme tokens, keyed off the OS setting. Both palettes are defined in full so nothing has to be
-   a literal at the point of use — same rule as the web SPA: never hardcode a colour. */
-:root {
-  --color-bg: #f6f7f5;
+/* Georgian display face, as in the web SPA — Georgian is the default language, so this is the
+   face most visitors read the market in. Must stay the first rule in the file: @import is only
+   honoured before any other statement. */
+@import url("//cdn.web-fonts.ge/fonts/bpg-boxo/css/bpg-boxo.min.css");
+
+/*
+ * Theme tokens, copied from `web/src/index.css` so the two clients read as one product. Only the
+ * tokens this app uses are here — the SPA's amber, blue and map colours have nothing to colour in
+ * a product grid.
+ *
+ * `--color-dark` keeps its name from the SPA even though it means *primary text* and goes light in
+ * dark mode: matching that stylesheet is the point, and renaming it would make the two harder to
+ * compare, not easier.
+ *
+ * Keyed off `data-theme` on <html> rather than a media query, because the theme is now a choice
+ * and not just an observation. ThemeProvider always writes the attribute — resolving the OS
+ * preference itself when nothing is stored — so there is no third, unset state to style for.
+ */
+:root,
+:root[data-theme='light'] {
+  --color-green: #2e7d5b;
+  --color-green-muted: #eaf4ee;
+  --color-dark: #1f2a24;
+  --color-border: #e1e4e0;
+  --color-muted: #8a938c;
+  --color-background: #ffffff;
+  --color-danger: #dc2626;
+  --color-danger-bg: #fef2f2;
+  --color-danger-border: #fecaca;
+
   --color-surface: #ffffff;
-  --color-surface-sunken: #eef0ec;
-  --color-border: #dfe3dc;
-  --color-text: #1c1f1a;
-  --color-muted: #6c7268;
-  --color-green: #3f8f4f;
-  --color-green-muted: #e6f2e8;
+  --color-surface-sunken: #fafafa;
   --color-on-accent: #ffffff;
-  --color-danger: #b3261e;
-  --color-danger-bg: #fdecea;
-  --color-shadow: rgb(0 0 0 / 8%);
+  /* Text over a scrim or a photo — always light, since the scrim is dark in both themes. */
+  --color-on-overlay: #ffffff;
+
+  --color-shadow: rgba(0, 0, 0, 0.08);
+  --color-scrim: rgba(0, 0, 0, 0.55);
+
+  color-scheme: light;
+  /* The system stack only covers glyphs BPG Boxo lacks, and the moment before it has loaded. */
+  font-family: 'BPG Boxo', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #141713;
-    --color-surface: #1e221c;
-    --color-surface-sunken: #171a15;
-    --color-border: #333829;
-    --color-text: #eef0ec;
-    --color-muted: #9aa295;
-    --color-green: #6cc47d;
-    --color-green-muted: #23331f;
-    --color-on-accent: #10130f;
-    --color-danger: #f2b8b5;
-    --color-danger-bg: #3a1512;
-    --color-shadow: rgb(0 0 0 / 40%);
-  }
+:root[data-theme='dark'] {
+  /* Greens are lifted so they still read as accents against a dark ground. */
+  --color-green: #4caf85;
+  --color-green-muted: #1d2b25;
+  --color-dark: #e6ece8;
+  --color-border: #2c352f;
+  --color-muted: #8d9891;
+  --color-background: #10140f;
+  --color-danger: #f87171;
+  --color-danger-bg: #2a1918;
+  --color-danger-border: #4b2724;
+
+  --color-surface: #171d19;
+  --color-surface-sunken: #131814;
+  --color-on-accent: #0d120f;
+  --color-on-overlay: #ffffff;
+
+  --color-shadow: rgba(0, 0, 0, 0.5);
+  --color-scrim: rgba(0, 0, 0, 0.7);
+
+  color-scheme: dark;
 }
 
 * {
@@ -38,16 +71,16 @@
 
 body {
   margin: 0;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: var(--color-background);
+  color: var(--color-dark);
   font-size: 16px;
   line-height: 1.45;
 }
 
 /* Form controls do not inherit fonts on their own. */
 input,
-button {
+button,
+select {
   font: inherit;
 }
 
@@ -58,7 +91,7 @@ button {
   border-radius: 12px;
   background: var(--color-green);
   color: var(--color-on-accent);
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -71,46 +104,42 @@ button {
 .btn-secondary {
   background: transparent;
   border: 1px solid var(--color-border);
-  color: var(--color-text);
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.field label {
-  color: var(--color-muted);
-  font-size: 0.9375rem;
-  font-weight: 600;
-}
-
-.field input {
-  height: 48px;
-  padding: 0 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-size: 1rem;
-}
-
-.field input:focus {
-  outline: 2px solid var(--color-green);
-  outline-offset: -1px;
+  color: var(--color-dark);
 }
 
 .error-banner {
   padding: 10px 14px;
-  border: 1px solid var(--color-danger);
+  border: 1px solid var(--color-danger-border);
   border-radius: 12px;
   background: var(--color-danger-bg);
   color: var(--color-danger);
-  font-size: 0.9375rem;
+  font-size: 0.8125rem;
 }
 
-/* A centred message standing in for the grid: loading, failed, or nothing uploaded yet. */
+/* The theme and language toggles, side by side. Both pages carry the pair, so it lives here
+   rather than in either one's stylesheet. */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The way back out of a listing, styled after the SPA's .back-link. */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--color-green);
+}
+
+/* A centred message standing in for the grid: loading, failed, or nothing on offer. */
 .state-box {
   display: flex;
   flex-direction: column;
@@ -118,5 +147,6 @@ button {
   gap: 12px;
   padding: 64px 0;
   color: var(--color-muted);
+  font-size: 0.875rem;
   text-align: center;
 }

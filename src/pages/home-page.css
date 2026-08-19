@@ -4,44 +4,226 @@
   padding: 24px 20px 48px;
 }
 
+/*
+ * The whole top of the page — title, count, the two toggles, search and category — pinned to the
+ * viewport as one block.
+ *
+ * One sticky wrapper rather than two sticky children: pinned separately, the toolbar would need a
+ * `top` equal to the header's height, and that number changes the moment the header wraps onto two
+ * rows on a narrow screen. Wrapping them means neither has to know how tall the other is.
+ *
+ * `position: sticky` only works while no ancestor clips or scrolls, so nothing between here and
+ * <body> may take `overflow: hidden` — worth knowing before wrapping this page in anything.
+ *
+ * The negative margin bleeds the block out through .home-page's 20px gutter and the padding puts
+ * its contents back on the grid's edge. Without that, cards would slide up through the two side
+ * gutters while the middle stayed covered.
+ */
+.home-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  margin: 0 -20px 16px;
+  padding: 12px 20px;
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
 .home-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.home-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* The stall illustration in src/assets. It carries its own colours — including a cream stall body
+   that stays cream in dark mode — so there is no token to tint it with, and none is wanted: it is
+   a picture, not a glyph. Square at source, so width and height simply agree. */
+.home-title-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
 }
 
 .home-title {
   margin: 0;
-  font-size: 1.75rem;
+  font-size: 1.375rem;
   font-weight: 700;
+  color: var(--color-dark);
 }
 
-.home-subtitle {
-  margin: 0 0 24px;
-  color: var(--color-muted);
-  font-size: 0.9375rem;
+/* How many listings are showing, beside the title — the SPA's .page-header-count. A bare number,
+   so it reads the same in all three languages and needs no plural rule. */
+.home-count {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--color-green-muted);
+  color: var(--color-green);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.home-user {
+/* Search and category. The pinning is .home-sticky's job; this is only the row. */
+.home-toolbar {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.home-user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 18px;
-  object-fit: cover;
-  background: var(--color-green-muted);
+/* Buy / rent / all, as one pill split into segments — so the three read as one choice rather than
+   three separate buttons that happen to sit together. */
+.type-filter {
+  display: flex;
+  flex-shrink: 0;
+  height: 42px;
+  padding: 3px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-sunken);
 }
 
-.home-user-name {
-  font-size: 0.9375rem;
+.type-filter-item {
+  padding: 0 14px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--color-muted);
+  font-size: 0.875rem;
   font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.type-filter-item:hover {
+  color: var(--color-dark);
+}
+
+.type-filter-item.active {
+  background: var(--color-green);
+  color: var(--color-on-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .type-filter-item {
+    transition: none;
+  }
+}
+
+/* Takes the room the category select does not. */
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-muted);
+}
+
+.search-field:focus-within {
+  border-color: var(--color-green);
+}
+
+.search-field input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background: none;
+  color: var(--color-dark);
+  font-size: 0.875rem;
+}
+
+.search-field input:focus {
+  outline: none;
+}
+
+.search-clear {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-surface-sunken);
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* A native <select>, so it gets the platform's own dropdown — and its keyboard and screen-reader
+   behaviour — for free. The caret is drawn over it rather than by it: `appearance: none` removes
+   the browser's, and an SVG data URI could not read the theme tokens the way this span does. */
+.select-field {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.toolbar-select {
+  appearance: none;
+  height: 42px;
+  padding: 0 34px 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-dark);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.toolbar-select:hover,
+.toolbar-select:focus {
+  border-color: var(--color-green);
+  outline: none;
+}
+
+.select-caret {
+  position: absolute;
+  right: 12px;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+/* Three controls in a row need more width than a phone has, so they give way in stages: first the
+   buy/rent segments take their own full-width row and share it evenly, then the category follows. */
+@media (max-width: 760px) {
+  .home-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .type-filter {
+    width: 100%;
+  }
+
+  .type-filter-item {
+    flex: 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .select-field,
+  .toolbar-select {
+    width: 100%;
+  }
 }
 
 /* The three-column grid this page exists for. It steps down rather than holding three columns all
@@ -50,7 +232,7 @@
 .product-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  gap: 16px;
 }
 
 @media (max-width: 900px) {
@@ -65,32 +247,120 @@
   }
 }
 
+/*
+ * The card, styled after `.product-card` in web/src/components/farm/farm-crud.css: the same 1px
+ * border, 16px radius, surface fill and clipped corners, with no shadow.
+ *
+ * The padding is what the SPA does not have. It insets the photo so the border below reads as a
+ * frame around the picture rather than as a line dividing the card in two.
+ */
 .product-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding: 8px;
   border: 1px solid var(--color-border);
   border-radius: 16px;
   background: var(--color-surface);
-  box-shadow: 0 2px 8px var(--color-shadow);
+  text-align: left;
+  /* The card is an <a> to the listing, so it has to give back the colour and underline a link
+     brings with it — the text inside is the listing's, not a link's. */
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 150ms ease, transform 150ms ease;
 }
 
+.product-card:hover {
+  border-color: var(--color-green);
+}
+
+/* A visible focus ring, since the whole tile is a tab stop now. */
+.product-card:focus-visible {
+  outline: 2px solid var(--color-green);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card {
+    transition: none;
+  }
+}
+
+/*
+ * The photo is square whatever shape the card ends up — same rule the SPA applies in
+ * market-page.css. Its own border is the inner one: a second, tighter frame inside the card's.
+ */
 .product-image-wrap {
   position: relative;
   aspect-ratio: 1;
-  background: var(--color-surface-sunken);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-green-muted);
+}
+
+/* The photos in one row, slid a whole frame at a time under the wrap's overflow:hidden. */
+.product-image-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 400ms ease;
 }
 
 .product-image {
+  display: block;
+  /* Each photo is exactly the frame: no shrinking to share the row between them. */
+  flex: 0 0 100%;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
-/* Stands in for a listing uploaded without a photo. The web SPA falls back to the crop's or
-   animal's own artwork here; that artwork lives in its asset folder, so this app shows the
-   category initial rather than duplicating a few hundred PNGs to say the same thing. */
+/* Which of the photos is showing. Only while the pointer is on the card — at rest the card says
+   how many there are instead, in the same corner. */
+.product-dots {
+  position: absolute;
+  right: 0;
+  bottom: 8px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.product-image-wrap:hover .product-dots {
+  opacity: 1;
+}
+
+.product-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 60%);
+  transition: width 200ms ease, background 200ms ease;
+}
+
+.product-dot.active {
+  width: 14px;
+  background: var(--color-surface);
+}
+
+/* Someone who asked their system for less movement gets the photo swapped, not slid. */
+@media (prefers-reduced-motion: reduce) {
+  .product-image-track,
+  .product-dots,
+  .product-dot,
+  .product-photo-count {
+    transition: none;
+  }
+}
+
+/* Stands in for a listing uploaded without a photo. The SPA falls back to the crop's or animal's
+   own artwork here; that artwork lives in its asset folder, so this app shows the initial rather
+   than duplicating a few hundred PNGs to say the same thing. */
 .product-image-fallback {
   display: flex;
   align-items: center;
@@ -102,57 +372,106 @@
   font-weight: 700;
 }
 
+/* Bottom-right over the photo, as on the SPA's listing cards. Gives way to the dots on hover:
+   once the photos are moving, which one you are on matters more than how many there are. */
 .product-photo-count {
   position: absolute;
   right: 8px;
   bottom: 8px;
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 10px;
-  background: rgb(0 0 0 / 55%);
-  color: #fff;
-  font-size: 0.75rem;
+  background: var(--color-scrim);
+  color: var(--color-on-overlay);
+  font-size: 0.6875rem;
   font-weight: 600;
+  transition: opacity 200ms ease;
 }
 
+.product-image-wrap:hover .product-photo-count {
+  opacity: 0;
+}
+
+/* Top-left, the shape the SPA gives its sold badge — a bordered pill on the surface colour, going
+   solid green once the listing is done. */
 .product-status {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 4px 10px;
-  border-radius: 999px;
+  top: 12px;
+  left: 12px;
+  padding: 5px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
   background: var(--color-surface);
-  color: var(--color-muted);
-  font-size: 0.75rem;
+  color: var(--color-dark);
+  font-size: 0.6875rem;
   font-weight: 600;
 }
 
 .product-status.sold {
+  border-color: var(--color-green);
   background: var(--color-green);
   color: var(--color-on-accent);
 }
 
+/* The card already pads all four sides, so this only adds the gap under the photo. */
 .product-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 14px 16px 16px;
+  flex-shrink: 0;
+  padding: 10px 4px 2px;
+  overflow: hidden;
 }
 
+/* .list-card-title in the SPA. */
 .product-title {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
+  color: var(--color-dark);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* .listing-price in the SPA. */
 .product-price {
+  margin: 2px 0;
   color: var(--color-green);
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 700;
 }
 
+/* .list-card-subtitle. Held open even when a listing has neither a balance nor a location, so the
+   photo above it is the same height on every card in the grid. */
 .product-meta {
+  min-height: 1.15em;
   color: var(--color-muted);
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The two icon lines: what is left, and where it is. Same shape so they read as a pair, told
+   apart by colour — the amount in the accent, the place in the muted grey. Both hold their line
+   even when the listing does not fill them, so the photo above stays the same height on every
+   card in the grid. */
+.product-meta.balance,
+.product-meta.place {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.product-meta.balance {
+  color: var(--color-green);
+  font-weight: 600;
+}
+
+.product-meta.balance svg,
+.product-meta.place svg {
+  flex-shrink: 0;
+}
+
+.product-place-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
