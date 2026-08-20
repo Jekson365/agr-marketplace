@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { CheckoutFields, EMPTY_CHECKOUT, type CheckoutValues } from '@/components/checkout-fields';
 import { formatPrice } from '@/config/price';
 import { useLanguage } from '@/contexts/language-context';
 import { ApiError } from '@/services/api-client';
@@ -13,8 +14,8 @@ type Props = {
 };
 
 /**
- * Collects the little the market needs to sell something to a stranger — a name, a phone number
- * and how much — and hands off to the bank.
+ * Collects what the seller needs to deliver to a stranger — who they are, how to reach them and
+ * where they live — and hands off to the bank.
  *
  * The total shown here is worked out locally for the buyer's benefit only. The server prices the
  * order again from the listing and charges that; nothing typed in this form can set a price.
@@ -25,20 +26,30 @@ type Props = {
 export function CheckoutModal({ listing, onClose }: Props) {
   const { t } = useLanguage();
 
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [quantity, setQuantity] = useState('1');
+  const [values, setValues] = useState<CheckoutValues>(EMPTY_CHECKOUT);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const parsedQuantity = Number(quantity.replace(',', '.'));
+  function change(field: keyof CheckoutValues, value: string) {
+    setValues((prev) => ({ ...prev, [field]: value }));
+  }
+
+  const parsedQuantity = Number(values.quantity.replace(',', '.'));
   const quantityValid =
     Number.isFinite(parsedQuantity) &&
     parsedQuantity > 0 &&
     (listing.quantity == null || parsedQuantity <= listing.quantity);
   const total = quantityValid ? listing.price * parsedQuantity : 0;
 
-  const canSubmit = name.trim().length >= 2 && phone.trim().length >= 5 && quantityValid && !submitting;
+  const detailsValid =
+    values.name.trim().length >= 2 &&
+    values.surname.trim().length >= 2 &&
+    values.phone.trim().length >= 5 &&
+    values.city.trim().length >= 2 &&
+    values.village.trim().length >= 2 &&
+    values.address.trim().length >= 2;
+
+  const canSubmit = detailsValid && quantityValid && !submitting;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -47,10 +58,16 @@ export function CheckoutModal({ listing, onClose }: Props) {
     setSubmitting(true);
     setError(null);
     try {
+      const facebookUrl = values.facebookUrl.trim();
       const order = await createMarketOrder({
         listingId: listing.id,
-        buyerName: name.trim(),
-        buyerPhone: phone.trim(),
+        buyerName: values.name.trim(),
+        buyerSurname: values.surname.trim(),
+        buyerPhone: values.phone.trim(),
+        buyerCity: values.city.trim(),
+        buyerVillage: values.village.trim(),
+        buyerAddress: values.address.trim(),
+        buyerFacebookUrl: facebookUrl === '' ? undefined : facebookUrl,
         quantity: parsedQuantity,
       });
       // Leaving for the bank's own page. A full navigation rather than a new tab: the buyer should
@@ -75,35 +92,7 @@ export function CheckoutModal({ listing, onClose }: Props) {
       <form className="checkout-card" onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
         <h2 className="checkout-title">{t('market.checkout')}</h2>
 
-        <div className="checkout-fields">
-          <label className="checkout-field">
-            <span>{t('market.buyerName')}</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" autoFocus />
-          </label>
-
-          <label className="checkout-field">
-            <span>{t('market.buyerPhone')}</span>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" inputMode="tel" />
-          </label>
-
-          {/* Only offered when the seller said how much there is. An uncounted listing is one lot. */}
-          {listing.quantity != null && (
-            <label className="checkout-field">
-              <span>
-                {t('market.checkoutQuantity')}
-                {listing.priceUnit ? ` (${listing.priceUnit})` : ''}
-              </span>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                max={listing.quantity}
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-              />
-            </label>
-          )}
-        </div>
+        <CheckoutFields listing={listing} values={values} onChange={change} />
 
         <div className="checkout-total">
           <span>{t('market.total')}</span>

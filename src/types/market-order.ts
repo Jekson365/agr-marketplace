@@ -10,7 +10,12 @@ export type MarketOrderStatus = 'Pending' | 'Paid' | 'Failed' | 'Refunded';
 export type CreateMarketOrderRequest = {
   listingId: number;
   buyerName: string;
+  buyerSurname: string;
   buyerPhone: string;
+  buyerAddress: string;
+  buyerCity: string;
+  buyerVillage: string;
+  buyerFacebookUrl?: string;
   /** In the listing's own price unit. */
   quantity: number;
 };

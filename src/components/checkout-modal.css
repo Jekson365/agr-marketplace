@@ -11,7 +11,7 @@
 
 .checkout-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
   padding: 24px;
@@ -32,6 +32,16 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.checkout-field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.checkout-field-row .checkout-field {
+  flex: 1;
+  min-width: 0;
 }
 
 .checkout-field {
@@ -97,4 +107,11 @@
   height: 44px;
   padding: 0 18px;
   font-size: 0.875rem;
+}
+
+@media (max-width: 480px) {
+  .checkout-field-row {
+    flex-direction: column;
+    gap: 14px;
+  }
 }
