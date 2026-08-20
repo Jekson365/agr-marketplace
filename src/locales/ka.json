@@ -53,7 +53,8 @@
     "filterAll": "ყველა",
     "filterBuy": "ყიდვა",
     "filterRent": "გაქირავება",
-    "filterType": "ყიდვა თუ გაქირავება"
+    "filterType": "ყიდვა თუ გაქირავება",
+    "premium": "პრემიუმი"
   },
   "common": {
     "retry": "ხელახლა ცდა"

@@ -1,0 +1,257 @@
+/*
+ * The card, styled after `.product-card` in web/src/components/farm/farm-crud.css: the same 1px
+ * border, 16px radius, surface fill and clipped corners, with no shadow.
+ *
+ * The padding is what the SPA does not have. It insets the photo so the border below reads as a
+ * frame around the picture rather than as a line dividing the card in two.
+ */
+.product-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  text-align: left;
+  /* The card is an <a> to the listing, so it has to give back the colour and underline a link
+     brings with it — the text inside is the listing's, not a link's. */
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+.product-card:hover {
+  border-color: var(--color-green);
+}
+
+/*
+ * A promoted listing. The gold replaces the neutral border rather than sitting inside it, so the
+ * tile gains no second frame and does not shift a pixel against its neighbours; the soft glow is
+ * what actually makes it stand out in a grid of otherwise identical cards.
+ */
+.product-card.premium {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 1px var(--color-gold), 0 4px 14px var(--color-gold-glow);
+}
+
+.product-card.premium:hover {
+  border-color: var(--color-gold);
+}
+
+/* Top-right, opposite the sale/rent badge, so the two never overlap. */
+.product-premium {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-gold);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* A visible focus ring, since the whole tile is a tab stop now. */
+.product-card:focus-visible {
+  outline: 2px solid var(--color-green);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card {
+    transition: none;
+  }
+}
+
+/*
+ * The photo is square whatever shape the card ends up — same rule the SPA applies in
+ * market-page.css. Its own border is the inner one: a second, tighter frame inside the card's.
+ */
+.product-image-wrap {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-green-muted);
+}
+
+/* The photos in one row, slid a whole frame at a time under the wrap's overflow:hidden. */
+.product-image-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 400ms ease;
+}
+
+.product-image {
+  display: block;
+  /* Each photo is exactly the frame: no shrinking to share the row between them. */
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Which of the photos is showing. Only while the pointer is on the card — at rest the card says
+   how many there are instead, in the same corner. */
+.product-dots {
+  position: absolute;
+  right: 0;
+  bottom: 8px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.product-image-wrap:hover .product-dots {
+  opacity: 1;
+}
+
+.product-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 60%);
+  transition: width 200ms ease, background 200ms ease;
+}
+
+.product-dot.active {
+  width: 14px;
+  background: var(--color-surface);
+}
+
+/* Someone who asked their system for less movement gets the photo swapped, not slid. */
+@media (prefers-reduced-motion: reduce) {
+  .product-image-track,
+  .product-dots,
+  .product-dot,
+  .product-photo-count {
+    transition: none;
+  }
+}
+
+/* Stands in for a listing uploaded without a photo. The SPA falls back to the crop's or animal's
+   own artwork here; that artwork lives in its asset folder, so this app shows the initial rather
+   than duplicating a few hundred PNGs to say the same thing. */
+.product-image-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-muted);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+/* Bottom-right over the photo, as on the SPA's listing cards. Gives way to the dots on hover:
+   once the photos are moving, which one you are on matters more than how many there are. */
+.product-photo-count {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: var(--color-scrim);
+  color: var(--color-on-overlay);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  transition: opacity 200ms ease;
+}
+
+.product-image-wrap:hover .product-photo-count {
+  opacity: 0;
+}
+
+/* Top-left, the shape the SPA gives its sold badge — a bordered pill on the surface colour, going
+   solid green once the listing is done. */
+.product-status {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 5px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-surface);
+  color: var(--color-dark);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.product-status.sold {
+  border-color: var(--color-green);
+  background: var(--color-green);
+  color: var(--color-on-accent);
+}
+
+/* The card already pads all four sides, so this only adds the gap under the photo. */
+.product-info {
+  flex-shrink: 0;
+  padding: 10px 4px 2px;
+  overflow: hidden;
+}
+
+/* .list-card-title in the SPA. */
+.product-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* .listing-price in the SPA. */
+.product-price {
+  margin: 2px 0;
+  color: var(--color-green);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+/* .list-card-subtitle. Held open even when a listing has neither a balance nor a location, so the
+   photo above it is the same height on every card in the grid. */
+.product-meta {
+  min-height: 1.15em;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The two icon lines: what is left, and where it is. Same shape so they read as a pair, told
+   apart by colour — the amount in the accent, the place in the muted grey. Both hold their line
+   even when the listing does not fill them, so the photo above stays the same height on every
+   card in the grid. */
+.product-meta.balance,
+.product-meta.place {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.product-meta.balance {
+  color: var(--color-green);
+  font-weight: 600;
+}
+
+.product-meta.balance svg,
+.product-meta.place svg {
+  flex-shrink: 0;
+}
+
+.product-place-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

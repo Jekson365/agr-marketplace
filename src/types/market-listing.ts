@@ -29,5 +29,7 @@ export type MarketListing = {
   location: string;
   imagePaths: string[];
   status: ListingStatus;
+  /** A promoted listing: the server sorts these first, and the card wears a gold border. */
+  isPremium: boolean;
   createdAt: string;
 };

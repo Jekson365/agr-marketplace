@@ -45,6 +45,24 @@
 
 /* Whether the listing is still going. Quiet by default — most listings are active, and a badge
    that shouts on every one of them stops meaning anything. */
+.listing-head-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.listing-premium {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--color-gold);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .listing-status {
   flex-shrink: 0;
   padding: 4px 12px;

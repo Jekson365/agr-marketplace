@@ -53,7 +53,8 @@
     "filterAll": "Alle",
     "filterBuy": "Kaufen",
     "filterRent": "Mieten",
-    "filterType": "Kaufen oder mieten"
+    "filterType": "Kaufen oder mieten",
+    "premium": "Premium"
   },
   "common": {
     "retry": "Erneut versuchen"

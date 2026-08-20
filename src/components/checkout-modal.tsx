@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { formatPrice } from '@/config/price';
 import { useLanguage } from '@/contexts/language-context';
 import { ApiError } from '@/services/api-client';
 import { createMarketOrder } from '@/services/market-order-service';
@@ -10,12 +11,6 @@ type Props = {
   listing: MarketListing;
   onClose: () => void;
 };
-
-const PRICE_FORMAT = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'GEL',
-  maximumFractionDigits: 2,
-});
 
 /**
  * Collects the little the market needs to sell something to a stranger — a name, a phone number
@@ -112,7 +107,7 @@ export function CheckoutModal({ listing, onClose }: Props) {
 
         <div className="checkout-total">
           <span>{t('market.total')}</span>
-          <strong>{PRICE_FORMAT.format(total)}</strong>
+          <strong>{formatPrice(total)}</strong>
         </div>
 
         <p className="checkout-hint">{t('market.checkoutHint')}</p>

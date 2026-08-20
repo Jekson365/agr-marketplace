@@ -6,18 +6,13 @@ import { ImageSlider } from '@/components/image-slider';
 import { LanguageToggle } from '@/components/language-toggle';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { mapsUrl, telegramUrl, whatsAppUrl } from '@/config/contact';
+import { formatPrice } from '@/config/price';
 import { LISTING_CATEGORY_LABEL_KEY } from '@/config/market-listing';
 import { useLanguage } from '@/contexts/language-context';
 import { ApiError, resolveAssetUrl } from '@/services/api-client';
 import { getMarketListing } from '@/services/market-listing-service';
 import type { MarketListing } from '@/types/market-listing';
 import './listing-page.css';
-
-const PRICE_FORMAT = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'GEL',
-  maximumFractionDigits: 2,
-});
 
 function PinIcon() {
   return (
@@ -146,13 +141,16 @@ export function ListingPage() {
 
           <div className="listing-head">
             <h1 className="listing-title">{title}</h1>
-            <span className={isCompleted ? 'listing-status completed' : 'listing-status'}>
-              {isCompleted ? t('market.statusCompleted') : t('market.statusActive')}
+            <span className="listing-head-badges">
+              {listing.isPremium && <span className="listing-premium">★ {t('market.premium')}</span>}
+              <span className={isCompleted ? 'listing-status completed' : 'listing-status'}>
+                {isCompleted ? t('market.statusCompleted') : t('market.statusActive')}
+              </span>
             </span>
           </div>
 
           <div className="listing-price-row">
-            <span className="listing-price">{PRICE_FORMAT.format(listing.price)}</span>
+            <span className="listing-price">{formatPrice(listing.price)}</span>
             {listing.priceUnit && <span className="listing-price-unit">/ {listing.priceUnit}</span>}
           </div>
 
