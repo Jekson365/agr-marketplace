@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { CheckoutFields, EMPTY_CHECKOUT, type CheckoutValues } from '@/components/checkout-fields';
 import { formatPrice } from '@/config/price';
@@ -25,6 +26,7 @@ type Props = {
  */
 export function CheckoutModal({ listing, onClose }: Props) {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const [values, setValues] = useState<CheckoutValues>(EMPTY_CHECKOUT);
   const [submitting, setSubmitting] = useState(false);
@@ -72,6 +74,10 @@ export function CheckoutModal({ listing, onClose }: Props) {
       });
       // Leaving for the bank's own page. A full navigation rather than a new tab: the buyer should
       // come back to this app afterwards, which is what the bank's redirect URLs arrange.
+      if (order.simulated) {
+        navigate(order.redirectUrl);
+        return;
+      }
       window.location.href = order.redirectUrl;
     } catch (err) {
       // 503 would mean the server cannot take payments at all. It no longer answers that — an

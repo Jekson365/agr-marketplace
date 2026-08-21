@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { useLanguage } from '@/contexts/language-context';
-import { getMarketOrder, simulateMarketOrderPayment } from '@/services/market-order-service';
+import { getMarketOrder } from '@/services/market-order-service';
 import type { MarketOrder } from '@/types/market-order';
 import './checkout-return-page.css';
 
@@ -42,13 +42,7 @@ export function CheckoutReturnPage() {
 
     async function check() {
       try {
-        // In the simulated flow there is no bank to confirm anything, so the first pass asks the
-        // server to settle the order itself. It refuses once real credentials exist, and the read
-        // below then reports whatever the bank actually said.
-        const found =
-          simulated && attemptsRef.current === 0
-            ? await simulateMarketOrderPayment(orderId).catch(() => getMarketOrder(orderId))
-            : await getMarketOrder(orderId);
+        const found = await getMarketOrder(orderId);
         if (cancelled) return;
         setOrder(found);
         setLoading(false);
