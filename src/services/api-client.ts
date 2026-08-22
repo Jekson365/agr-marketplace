@@ -2,9 +2,10 @@
  * The whole networking layer, as in the web SPA: no cache, no dedupe, no retry, no data-fetching
  * library. Pages hold their own rows, loading flag and error string.
  *
- * There is no token here and no Authorization header. This app only ever reads the market, and the
- * market's read endpoints are [AllowAnonymous] — see Server/Controllers/MarketListingsController.cs.
- * Anything that writes needs a signed-in caller, which is what the web SPA is for.
+ * Browsing and ordering need no token — those endpoints are [AllowAnonymous], which is why the
+ * market is readable before anyone signs in. The token below is for the account itself: signing in
+ * here identifies a seller, and the seller endpoints need it. It is held in a module variable and
+ * kept in step by AuthProvider, so no request pays a storage read.
  */
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5261';
 
@@ -15,6 +16,12 @@ export function resolveAssetUrl(path: string): string {
     return path;
   }
   return `${API_URL}${path}`;
+}
+
+let authToken: string | null = null;
+
+export function setAuthToken(token: string | null): void {
+  authToken = token;
 }
 
 export class ApiError extends Error {
@@ -31,6 +38,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     ...init,
     headers: {
       'Content-Type': 'application/json',
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...init?.headers,
     },
   });

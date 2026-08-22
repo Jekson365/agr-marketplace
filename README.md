@@ -1,7 +1,7 @@
 # marketplace
 
-A standalone React + Vite app that shows the products the signed-in user has uploaded to the farm
-marketplace, three to a row.
+A standalone React + Vite app: the farm marketplace, three listings to a row. Public to browse and
+to buy from, with its own registration and sign-in for the sellers who list on it.
 
 ```bash
 cd marketplace
@@ -17,19 +17,23 @@ This is a **third frontend** in the repo, alongside the Expo app at the root and
 `web/`. It shares **no code** with either — `src/types/market-listing.ts` and `src/services/` are
 hand-kept copies, so a change to the server's `MarketListingDto` has to be made here as well.
 
-`web/` already has a fuller marketplace at `/market`: buy/rent/mine tabs, search, category filters,
-listing detail pages, and the upload, edit, delete and mark-sold flows. **This app only reads.**
-It exists to show one thing well.
+`web/` also has a marketplace at `/market`, for a farmer who sells what their farm produces. **This
+app is the marketplace's own front door**: it is where a shop that only sells here signs up, and it
+is readable by anyone who has never signed in.
 
 ## How it works
 
-- `GET /api/marketlistings?mine=true` is the whole data layer — that `mine` flag is what makes the
-  grid the user's own uploads rather than the open market.
-- That endpoint needs a bearer token, so there is a small sign-in against `POST /api/auth/login`,
-  the same endpoint the SPA uses. The session is stored under `marketplace.auth.session`.
-- On its own port this app has its own `localStorage`, so it cannot see a session created in the
-  SPA. `session.ts` also reads the SPA's `farm.auth.session` key as a fallback, so that if the two
-  are ever served from the same origin, signing in once is enough.
+- **The market is public.** `GET /api/marketlistings` and the checkout endpoints are
+  `[AllowAnonymous]`, so browsing, opening a listing and ordering all work with no account. That is
+  deliberate — a shop window nobody has to sign in to look at.
+- **Signing in is for the seller side.** `/register` posts to `POST /api/auth/register-seller`,
+  which creates the account in the same `Users` table the farm software signs into, marked
+  `IsSeller` and **without** `HasManagementAccess` — so a shop is never handed a farm to manage,
+  and no tenant database is provisioned for it. `/login` posts to the same `POST /api/auth/login`
+  the SPA uses.
+- The session is stored under `marketplace.auth.session`. On its own port this app has its own
+  `localStorage`, so a session made in the SPA is invisible here and vice versa — signing in
+  happens once per app, deliberately.
 
 ## Configuration
 

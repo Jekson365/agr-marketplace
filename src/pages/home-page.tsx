@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import marketIcon from '@/assets/market.png';
+import { AccountMenu } from '@/components/account-menu';
 import { FeaturedSlider } from '@/components/featured-slider';
 import { LanguageToggle } from '@/components/language-toggle';
 import { ProductCard } from '@/components/product-card';
@@ -71,6 +72,7 @@ export function HomePage() {
           <div className="topbar-actions">
             <ThemeToggle />
             <LanguageToggle />
+            <AccountMenu />
           </div>
         </div>
 
