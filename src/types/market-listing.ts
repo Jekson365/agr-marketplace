@@ -18,6 +18,9 @@ export type MarketListing = {
   sellerSurname: string;
   sellerPhoneNumber: string;
   sellerImagePath: string;
+  /** The seller's farm, empty when they have not named one. Shown in place of their own name on
+   *  the listing page — see pages/listing-page.tsx. */
+  sellerFarmName: string;
   type: ListingType;
   category: ListingCategory;
   itemType: string;

@@ -102,7 +102,11 @@ export function ListingPage() {
       ? t(LISTING_CATEGORY_LABEL_KEY[listing.category])
       : '';
   const title = listing ? listing.title.trim() || typeLabel || t('market.untitled') : '';
-  const sellerName = listing ? [listing.sellerName, listing.sellerSurname].filter(Boolean).join(' ') : '';
+  /* A seller who has named their farm is shown as the farm — that is the name a buyer knows the
+     produce by. Only their own name is left when there is no farm name to use. */
+  const sellerName = listing
+    ? listing.sellerFarmName.trim() || [listing.sellerName, listing.sellerSurname].filter(Boolean).join(' ')
+    : '';
   const isCompleted = listing?.status === 'Completed';
 
   return (
